@@ -744,9 +744,15 @@ class AdvancedLivePortrait:
                     self.psi_list = [g_engine.prepare_source(src_images, crop_factor)]
 
 
-        cmd_list, cmd_length = self.parsing_command(command, motion_link)
-        if cmd_list == None: return (None,None)
+        # cmd_list, cmd_length = self.parsing_command(command, motion_link)
+        # if cmd_list == None: return (None,None)
         cmd_idx = 0
+        cmd_list = []  # this will ignore official code below
+        cmd_length = 0 # this will ignore official code below
+        try:
+            fade_frames = int(command.strip())
+        except ValueError:
+            fade_frames = 5
 
         driving_length = 0
         if driving_images is not None:
@@ -805,10 +811,10 @@ class AdvancedLivePortrait:
 
                     retargeting(s_es.e, d_0_es.e, retargeting_eyes, (11, 13, 15, 16))
                     retargeting(s_es.e, d_0_es.e, retargeting_mouth, (14, 17, 19, 20))
-
-                new_es.e += d_i_info['exp'] - d_0_es.e
-                new_es.r += d_i_r - d_0_es.r
-                new_es.t += d_i_info['t'] - d_0_es.t
+                fade_rate = 1 if i<driving_length - fade_frames+1 else (driving_length - i)/fade_frames
+                new_es.e += fade_rate * (d_i_info['exp'] - d_0_es.e)
+                new_es.r += fade_rate * (d_i_r - d_0_es.r)
+                new_es.t += fade_rate * (d_i_info['t'] - d_0_es.t)
 
             r_new = get_rotation_matrix(
                 s_info['pitch'] + new_es.r[0], s_info['yaw'] + new_es.r[1], s_info['roll'] + new_es.r[2])
