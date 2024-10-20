@@ -751,8 +751,10 @@ class AdvancedLivePortrait:
         cmd_length = 0 # this will ignore official code below
         try:
             fade_frames = int(command.strip())
+            print(f"fade_frames: {fade_frames}")
         except ValueError:
             fade_frames = 5
+            print(f"fade_frames invalid: '{command}' -> set to default 5")
 
         driving_length = 0
         if driving_images is not None:
