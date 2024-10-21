@@ -813,7 +813,8 @@ class AdvancedLivePortrait:
 
                     retargeting(s_es.e, d_0_es.e, retargeting_eyes, (11, 13, 15, 16))
                     retargeting(s_es.e, d_0_es.e, retargeting_mouth, (14, 17, 19, 20))
-                fade_rate = 1 if i<driving_length - fade_frames+1 else (driving_length - i)/fade_frames
+                fade_x = 1 if i<driving_length - fade_frames+1 else (driving_length - i)/fade_frames
+                fade_rate = round(6*fade_x**5 - 15*fade_x**4 + 10*fade_x**3, 3)  # ease in-out 
                 new_es.e += fade_rate * (d_i_info['exp'] - d_0_es.e)
                 new_es.r += fade_rate * (d_i_r - d_0_es.r)
                 new_es.t += fade_rate * (d_i_info['t'] - d_0_es.t)
