@@ -784,6 +784,9 @@ class AdvancedLivePortrait:
 
             new_es = ExpressionSet(es = s_es)
 
+            if motion_link != None and len(motion_link) > 0:
+                new_es.add(ExpressionSet(es = motion_link[0]))
+
             if i < cmd_length:
                 cmd = cmd_list[cmd_idx]
                 if 0 < cmd.change:
