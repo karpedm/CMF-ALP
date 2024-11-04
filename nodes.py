@@ -10,6 +10,7 @@ import time
 import copy
 import dill
 import yaml
+import math
 from ultralytics import YOLO
 
 current_file_path = os.path.abspath(__file__)
@@ -572,6 +573,31 @@ class LoadExpData:
             es = dill.load(f)
         es.mul(ratio)
         return (es,)
+    
+
+class SaveText:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+                "file_name": ("STRING", {"multiline": False, "default": ""}),
+            },
+            "optional": {"text": ("STRING",), }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("file_name",)
+    FUNCTION = "run"
+    CATEGORY = "AdvancedLivePortrait"
+    OUTPUT_NODE = True
+
+    def run(self, file_name, text=None):
+        if text == None or file_name == "":
+            return file_name
+
+        with open(os.path.join(exp_data_dir, file_name), "wb") as f:
+            f.write(text.encode())
+
+        return file_name
 
 class ExpData:
     @classmethod
@@ -679,8 +705,8 @@ class AdvancedLivePortrait:
             },
         }
 
-    RETURN_TYPES = ("IMAGE",)
-    RETURN_NAMES = ("images",)
+    RETURN_TYPES = ("IMAGE", "STRING")
+    RETURN_NAMES = ("images", "exp_text")
     FUNCTION = "run"
     OUTPUT_NODE = True
     CATEGORY = "AdvancedLivePortrait"
@@ -772,6 +798,8 @@ class AdvancedLivePortrait:
         c_o_es = ExpressionSet()
         d_0_es = None
         out_list = []
+        r_diffs = []
+        r_list = []
 
         psi = None
         pipeline = g_engine.get_pipeline()
@@ -785,7 +813,7 @@ class AdvancedLivePortrait:
             new_es = ExpressionSet(es = s_es)
 
             if motion_link != None and len(motion_link) > 1: # first one is source image
-                print(f"#{i} motion_link: {motion_link[1]}")
+                # print(f"#{i} motion_link: {motion_link[1]}")
                 new_es.add(ExpressionSet(es = motion_link[1]))
 
             if i < cmd_length:
@@ -822,6 +850,13 @@ class AdvancedLivePortrait:
                 new_es.e += fade_rate * (d_i_info['exp'] - d_0_es.e)
                 new_es.r += fade_rate * (d_i_r - d_0_es.r)
                 new_es.t += fade_rate * (d_i_info['t'] - d_0_es.t)
+                if i==0:
+                    r_diffs.append(0)
+                else:
+                    r_diff = math.sqrt((new_es.r[0]-last_r[0])**2 + (new_es.r[1]-last_r[1])**2 + (new_es.r[2]-last_r[2])**2)
+                    r_diffs.append(round(r_diff*100))
+                last_r = new_es.r
+                r_list.append(new_es.r)
 
             r_new = get_rotation_matrix(
                 s_info['pitch'] + new_es.r[0], s_info['yaw'] + new_es.r[1], s_info['roll'] + new_es.r[2])
@@ -841,7 +876,10 @@ class AdvancedLivePortrait:
         if len(out_list) == 0: return (None,)
 
         out_imgs = torch.cat([pil2tensor(img_rgb) for img_rgb in out_list])
-        return (out_imgs,)
+        exp_text = '\n'.join(','.join(map(str, inner)) for inner in r_list)
+        return (out_imgs, exp_text, )
+    
+        return {"ui": {"images": results}, "result": (out_img, new_editor_link, es)}
 
 class ExpressionEditor:
     def __init__(self):
@@ -983,11 +1021,13 @@ NODE_CLASS_MAPPINGS = {
     "SaveExpData": SaveExpData,
     "ExpData": ExpData,
     "PrintExpData:": PrintExpData,
+    "SaveText:": SaveText,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "AdvancedLivePortrait": "Advanced Live Portrait (PHM)",
     "ExpressionEditor": "Expression Editor (PHM)",
     "LoadExpData": "Load Exp Data (PHM)",
-    "SaveExpData": "Save Exp Data (PHM)"
+    "SaveExpData": "Save Exp Data (PHM)",
+    "SaveText": "Save Text"
 }
