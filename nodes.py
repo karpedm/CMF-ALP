@@ -1019,7 +1019,7 @@ NODE_CLASS_MAPPINGS = {
     "SaveExpData": SaveExpData,
     "ExpData": ExpData,
     "PrintExpData:": PrintExpData,
-    "SaveText:": SaveText,
+    "SaveText": SaveText,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
