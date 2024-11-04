@@ -581,7 +581,7 @@ class SaveText:
         return {"required": {
                 "file_name": ("STRING", {"multiline": False, "default": ""}),
             },
-            "optional": {"text": ("STRING",), }
+            "optional": {"text": ("TEXT_DATA",), }
         }
 
     RETURN_TYPES = ("STRING",)
@@ -705,7 +705,7 @@ class AdvancedLivePortrait:
             },
         }
 
-    RETURN_TYPES = ("IMAGE", "STRING")
+    RETURN_TYPES = ("IMAGE", "TEXT_DATA")
     RETURN_NAMES = ("images", "exp_text")
     FUNCTION = "run"
     OUTPUT_NODE = True
@@ -878,8 +878,6 @@ class AdvancedLivePortrait:
         out_imgs = torch.cat([pil2tensor(img_rgb) for img_rgb in out_list])
         exp_text = '\n'.join(','.join(map(str, inner)) for inner in r_list)
         return (out_imgs, exp_text, )
-    
-        return {"ui": {"images": results}, "result": (out_img, new_editor_link, es)}
 
 class ExpressionEditor:
     def __init__(self):
