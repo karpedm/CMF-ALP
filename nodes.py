@@ -594,7 +594,7 @@ class SaveText:
         if text == None or file_name == "":
             return file_name
 
-        with open(os.path.join(exp_data_dir, file_name), "wb") as f:
+        with open(file_name, "wb") as f:
             f.write(text.encode())
 
         return file_name
@@ -876,7 +876,7 @@ class AdvancedLivePortrait:
         if len(out_list) == 0: return (None,)
 
         out_imgs = torch.cat([pil2tensor(img_rgb) for img_rgb in out_list])
-        exp_text = '\n'.join(','.join(map(str, inner)) for inner in r_list)
+        exp_text = '\n'.join(','.join(f'{x.item():.4f}' for x in inner) for inner in r_list)
         return (out_imgs, exp_text, )
 
 class ExpressionEditor:
