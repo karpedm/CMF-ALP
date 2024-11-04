@@ -594,7 +594,7 @@ class SaveText:
         if text == None or file_name == "":
             return file_name
 
-        with open(file_name, "wb") as f:
+        with open(os.path.join(folder_paths.output_directory, file_name), "wb") as f:
             f.write(text.encode())
 
         return file_name
