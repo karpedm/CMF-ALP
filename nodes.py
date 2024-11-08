@@ -798,7 +798,6 @@ class AdvancedLivePortrait:
         c_o_es = ExpressionSet()
         d_0_es = None
         out_list = []
-        r_diffs = []
         r_list = []
 
         psi = None
@@ -850,13 +849,10 @@ class AdvancedLivePortrait:
                 new_es.e += fade_rate * (d_i_info['exp'] - d_0_es.e)
                 new_es.r += fade_rate * (d_i_r - d_0_es.r)
                 new_es.t += fade_rate * (d_i_info['t'] - d_0_es.t)
-                if i==0:
-                    r_diffs.append(0)
-                else:
-                    r_diff = math.sqrt((new_es.r[0]-last_r[0])**2 + (new_es.r[1]-last_r[1])**2 + (new_es.r[2]-last_r[2])**2)
-                    r_diffs.append(round(r_diff*100))
-                last_r = new_es.r
-                r_list.append(new_es.r)
+
+                if motion_link is not None and len(motion_link) > 1:
+                    rot = new_es.r - motion_link[1].r
+                    r_list.append(rot)
 
             r_new = get_rotation_matrix(
                 s_info['pitch'] + new_es.r[0], s_info['yaw'] + new_es.r[1], s_info['roll'] + new_es.r[2])
